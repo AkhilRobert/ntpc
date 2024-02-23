@@ -1,0 +1,4 @@
+IndentWidth: 4
+AllowShortFunctionsOnASingleLine: Empty
+AlignAfterOpenBracket: BlockIndent
+AccessModifierOffset: -4
