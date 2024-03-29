@@ -12,8 +12,10 @@
 #include <time.h>
 #include <unistd.h>
 
-#define URL "time.google.com"
-#define PORT "123"
+// TODO(akhil): set timeout and retry
+
+static char *url;
+static char *port = "123";
 
 // Linux starts its epoch time from 1970
 // but NTP starts from 1900 so we need to take it into consideration
@@ -45,16 +47,42 @@ typedef struct {
     NTP_TimestampFormat transmit_timestamp;
 } NTP_PacketHeader;
 
-void print_usage(void) {}
+void print_usage(char *program_name) {
+    printf("Usage: %s [url]\n\n", program_name);
+    printf("Description: \n");
+    printf("  A simple NTP client\n\n");
+    printf("Options: \n");
+    printf("  -p, --port    port of the NTP server\n");
+}
 
-int main(void) {
+void parse_args(int argc, char **argv) {
+    for (int i = 1; i < argc; ++i) {
+        const char *current = argv[i];
+
+        if (strcmp(current, "-p") == 0 || strcmp(current, "--port") == 0) {
+            port = argv[++i];
+        } else {
+            url = argv[i];
+        }
+    }
+}
+
+int main(int argc, char **argv) {
+
+    if (argc < 2) {
+        print_usage(argv[0]);
+        exit(1);
+    }
+
+    parse_args(argc, argv);
+
     struct addrinfo hints = {0};
     struct addrinfo *res;
 
     // We only need UDP connections
     hints.ai_socktype = SOCK_DGRAM;
 
-    int status = getaddrinfo(URL, PORT, &hints, &res);
+    int status = getaddrinfo(url, port, &hints, &res);
     if (status != 0) {
         fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
         exit(1);
@@ -71,7 +99,7 @@ int main(void) {
         sizeof(struct sockaddr_storage)
     );
     if (result < 0) {
-        printf("%s\n", strerror(errno));
+        fprintf(stderr, "sendto error: %s\n", strerror(errno));
         exit(1);
     }
 
@@ -80,12 +108,12 @@ int main(void) {
 
     result = recvfrom(sockfd, &rs, sizeof rs, 0, res->ai_addr, &their);
     if (result < 0) {
-        printf("%s\n", strerror(errno));
+        fprintf(stderr, "recvfrom error %s\n", strerror(errno));
         exit(1);
     }
 
     uint32_t seconds = ntohl(rs.transmit_timestamp.seconds) - JAN_1970;
 
-    printf("current time is %s", ctime((const time_t *)&seconds));
+    printf("The current time is %s", ctime((const time_t *)&seconds));
     close(sockfd);
 }
