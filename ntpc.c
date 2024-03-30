@@ -60,7 +60,11 @@ void parse_args(int argc, char **argv) {
         const char *current = argv[i];
 
         if (strcmp(current, "-p") == 0 || strcmp(current, "--port") == 0) {
-            port = argv[++i];
+            if (++i > argc) {
+                fprintf(stderr, "Invalid number of arguments\n");
+                exit(1);
+            }
+            port = argv[i];
         } else {
             url = argv[i];
         }
@@ -81,6 +85,11 @@ int main(int argc, char **argv) {
 
     // We only need UDP connections
     hints.ai_socktype = SOCK_DGRAM;
+
+    if (!url) {
+        fprintf(stderr, "Invalid number of arguments\n");
+        exit(1);
+    }
 
     int status = getaddrinfo(url, port, &hints, &res);
     if (status != 0) {
