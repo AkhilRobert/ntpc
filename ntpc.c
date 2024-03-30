@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
     hints.ai_socktype = SOCK_DGRAM;
 
     if (!url) {
-        fprintf(stderr, "Invalid number of arguments\n");
+        fprintf(stderr, "url is not provided\n");
         exit(1);
     }
 
