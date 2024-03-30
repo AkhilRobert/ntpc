@@ -48,11 +48,13 @@ typedef struct {
 } NTP_PacketHeader;
 
 void print_usage(char *program_name) {
-    printf("Usage: %s [url]\n\n", program_name);
-    printf("Description: \n");
+    printf("Usage: %s <URL> [OPTIONS]\n\n", program_name);
+    printf("USAGE: \n");
     printf("  A simple NTP client\n\n");
-    printf("Options: \n");
-    printf("  -p, --port    port of the NTP server\n");
+    printf("OPTIONS: \n");
+    printf("  -p, --port    port of the NTP server\n\n");
+    printf("ARGS:\n");
+    printf("  <URL>    ntp url\n");
 }
 
 void parse_args(int argc, char **argv) {
